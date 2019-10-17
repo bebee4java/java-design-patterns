@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -32,6 +31,7 @@ public class UnitTest {
         public void run() {
             System.out.println(Thread.currentThread().getName() + ": I get a obj.");
             Object obj = function.get();
+            System.out.println(obj.hashCode());
             objs.add(obj);
         }
     }
@@ -59,11 +59,89 @@ public class UnitTest {
 
     }
 
+    @Test
+    public void lazyLoadPresident() throws InterruptedException {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+
+        fixedThreadPool.submit(new CreateObj(() -> LazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> LazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> LazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> LazyLoadPresident.getInstance()));
+
+        fixedThreadPool.awaitTermination(4, TimeUnit.SECONDS);
+
+    }
+
+    @Test
+    public void threadSafelazyLoadPresident() throws InterruptedException {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeLazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeLazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeLazyLoadPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeLazyLoadPresident.getInstance()));
+
+        fixedThreadPool.awaitTermination(4, TimeUnit.SECONDS);
+
+    }
+
+    @Test
+    public void threadSafeDoubleCheckPredident() throws InterruptedException {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeDoubleCheckPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeDoubleCheckPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeDoubleCheckPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> ThreadSafeDoubleCheckPresident.getInstance()));
+
+        fixedThreadPool.awaitTermination(4, TimeUnit.SECONDS);
+
+    }
+
+
+    @Test
+    public void initializingOnDemandHolderPresident() throws InterruptedException {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+
+        fixedThreadPool.submit(new CreateObj(() -> InitializingOnDemandHolderPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> InitializingOnDemandHolderPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> InitializingOnDemandHolderPresident.getInstance()));
+        fixedThreadPool.submit(new CreateObj(() -> InitializingOnDemandHolderPresident.getInstance()));
+
+        fixedThreadPool.awaitTermination(4, TimeUnit.SECONDS);
+
+    }
+
+
+    @Test
+    public void enumPresident() throws InterruptedException {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+
+        EnumPresident.INSTANCE.run();
+
+        fixedThreadPool.submit(new CreateObj(() -> EnumPresident.INSTANCE));
+        fixedThreadPool.submit(new CreateObj(() -> EnumPresident.INSTANCE));
+        fixedThreadPool.submit(new CreateObj(() -> EnumPresident.INSTANCE));
+        fixedThreadPool.submit(new CreateObj(() -> EnumPresident.INSTANCE));
+
+        fixedThreadPool.awaitTermination(4, TimeUnit.SECONDS);
+
+    }
+
+
+
+
     @After
     public void check() {
         assert objs.size() > 1;
-        objs.stream().reduce((a,b) -> a == b);
-        objs.stream().forEach(a -> System.out.println(a.getClass()));
+
+        for (int i=0; i<objs.size()-1; i++){
+            for (int j=i+1; j<objs.size(); j++){
+                assert objs.get(i) == objs.get(j);
+            }
+        }
+
+        objs.stream().forEach(a -> System.out.println(a.getClass() + " " + a.hashCode()));
     }
 
 
