@@ -133,7 +133,7 @@ public class UnitTest {
 
     @After
     public void check() {
-        assert objs.size() > 1;
+        assert objs.size() == 4;
 
         for (int i=0; i<objs.size()-1; i++){
             for (int j=i+1; j<objs.size(); j++){

@@ -10,6 +10,7 @@
 
     <modules>
         <module>singleton</module>
+        <module>strategy</module>
     </modules>
 
     <dependencies>

@@ -2,7 +2,7 @@ package os.dt.design.patterns.singleton;
 
 /**
  * 枚举式
- * 不仅线程安全，还可以反序列化
+ * 不仅线程安全，还可以反序列化 (原因是枚举类没有构造方法)
  * （有点别扭）
  * Created by songgr on 2019/10/17.
  */

@@ -13,13 +13,13 @@ public class InitializingOnDemandHolderPresident {
     }
 
     // 可以做到延迟加载
-    private static class HelperHolder {
+    private static class SingletonHolder {
         private static final InitializingOnDemandHolderPresident INSTANCE =
                 new InitializingOnDemandHolderPresident();
     }
 
     public static InitializingOnDemandHolderPresident getInstance() {
-        return HelperHolder.INSTANCE;
+        return SingletonHolder.INSTANCE;
     }
 
 }
